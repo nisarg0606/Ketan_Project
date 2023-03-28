@@ -150,8 +150,8 @@ app.get("/images", auth, async (req, res) => {
   // get all images of the user
   try {
     // get only images
-    // const files = await File.find({ type: "image/jpeg" });
-    const files = await File.find();
+    const files = await File.find({ type: "image/jpeg" });
+    // const files = await File.find();
     res.status(200).json(files);
   } catch (err) {
     console.log(err);
@@ -194,6 +194,25 @@ app.post("/upload/video", auth, upload.single("file"), async (req, res) => {
     res.status(200).json(savedFile);
   } catch (err) {
     console.log(err);
+  }
+});
+
+// get all user's videos
+app.get("/videos", auth, async (req, res) => {
+  if (!req.user) {
+    res.status(400).json({ error: "Please login" });
+  }
+  // get user name from req.user
+  const { name } = req.user;
+  // get all videos of the user
+  try {
+    // get only videos
+    const files = await File.find({ type: "video/mp4" });
+    // const files = await File.find();
+    res.status(200).json(files);
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ error: "Something went wrong" });
   }
 });
 
