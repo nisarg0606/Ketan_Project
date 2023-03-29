@@ -10,6 +10,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const auth = require("./middleware/auth");
 dotenv.config();
 const storage = multer.diskStorage({
   // function to create a folder with the name of the user
