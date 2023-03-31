@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const userRoutes = require("./routes/userRoutes");
+const fileRoutes = require("./routes/fileRoutes");
 
 const app = express();
 const port = 3000;
@@ -21,5 +22,7 @@ app.use(bodyParser.json());
 
 // Use user routes
 app.use("/users", userRoutes);
+// Use file routes
+app.use("/files", fileRoutes);
 
 app.listen(port, () => console.log(`Server listening on port ${port}`));
