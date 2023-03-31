@@ -25,9 +25,9 @@ const upload = multer({ storage: storage });
 router.post("/video", auth, upload.single("video"), fileController.uploadVideo);
 router.post("/audio", auth, upload.single("audio"), fileController.uploadAudio);
 router.post("/image", auth, upload.single("image"), fileController.uploadImage);
-router.get("/audio", auth, fileController.getAudioFiles);
-router.get("/video", auth, fileController.getVideoFiles);
-router.get("/image", auth, fileController.getImageFiles);
+router.get("/getImages", auth, fileController.getAllImages);
+router.get("getImage/:id", auth, fileController.getImageById);
+router.delete("/deleteImage/:id", auth, fileController.deleteImageById);
 
 
 module.exports = router;
