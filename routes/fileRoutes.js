@@ -28,6 +28,11 @@ router.post("/image", auth, upload.single("image"), fileController.uploadImage);
 router.get("/getImages", auth, fileController.getAllImages);
 router.get("getImage/:id", auth, fileController.getImageById);
 router.delete("/deleteImage/:id", auth, fileController.deleteImageById);
-
+router.get("/getVideos", auth, fileController.getAllVideos);
+router.get("getVideo/:id", auth, fileController.getVideoById);
+router.delete("/deleteVideo/:id", auth, fileController.deleteVideoById);
+router.get("/getAudios", auth, fileController.getAllAudios);
+router.get("getAudio/:id", auth, fileController.getAudioById);
+router.delete("/deleteAudio/:id", auth, fileController.deleteAudioById);
 
 module.exports = router;

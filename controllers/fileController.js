@@ -30,6 +30,7 @@ const uploadVideo = async (req, res) => {
       name: newFileName,
       type: fileType,
       extension: fileExtension,
+      typeFile: "video",
     });
     await file.save();
 
@@ -71,6 +72,7 @@ const uploadAudio = async (req, res) => {
       name: newFileName,
       type: fileType,
       extension: fileExtension,
+      typeFile: "audio",
     });
     await file.save();
 
@@ -112,6 +114,7 @@ const uploadImage = async (req, res) => {
       name: newFileName,
       type: fileType,
       extension: fileExtension,
+      typeFile: "image",
     });
     await file.save();
     // Move file to appropriate folder
@@ -131,7 +134,8 @@ const getAllImages = async (req, res) => {
     const user = req.user;
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
     const imagePath = path.join(__dirname, `../uploads/${folderName}/image`);
-    const files = await File.find({}).exec();
+    //get all images from database
+    const files = await File.find({ typeFile: "image" }).exec();
     const imageUrls = files.map((file) => {
       // D:\Ketan_Project\uploads\ketanfunde\image
       // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
@@ -178,6 +182,109 @@ const deleteImageById = async (req, res) => {
   }
 };
 
+const getAllVideos = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const videoPath = path.join(__dirname, `../uploads/${folderName}/video`);
+    const files = await File.find({ typeFile: "video" }).exec();
+    const videoUrls = files.map((file) => {
+      // D:\Ketan_Project\uploads\ketanfunde\image
+      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
+      const videoUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\video\\${file.name}`;
+      return videoUrl;
+    });
+    res.send({ videos: videoUrls });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getVideoById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const videoPath = path.join(__dirname, `../uploads/${folderName}/video`);
+    const file = await File.findById(req.params.id).exec();
+    const videoUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/video/${file.name}`;
+    res.send({ video: videoUrl });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const deleteVideoById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const videoPath = path.join(__dirname, `../uploads/${folderName}/video`);
+    const file = await File.findById(req.params.id).exec();
+    if (!file) {
+      res.status(404).send({ error: "File not found" });
+      return;
+    }
+    fs.unlinkSync(path.join(imagePath, file.name));
+    await file.deleteOne();
+    res.send({ message: "File deleted successfully" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getAllAudios = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const audioPath = path.join(__dirname, `../uploads/${folderName}/audio`);
+    const files = await File.find({ typeFile: "audio" }).exec();
+    const audioUrls = files.map((file) => {
+      // D:\Ketan_Project\uploads\ketanfunde\image
+      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
+      const audioUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\audio\\${file.name}`;
+      return audioUrl;
+    });
+    res.send({ audios: audioUrls });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getAudioById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const audioPath = path.join(__dirname, `../uploads/${folderName}/audio`);
+    const file = await File.findById(req.params.id).exec();
+    const audioUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/audio/${file.name}`;
+    res.send({ audio: audioUrl });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const deleteAudioById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const audioPath = path.join(__dirname, `../uploads/${folderName}/audio`);
+    const file = await File.findById(req.params.id).exec();
+    if (!file) {
+      res.status(404).send({ error: "File not found" });
+      return;
+    }
+    fs.unlinkSync(path.join(imagePath, file.name));
+    await file.deleteOne();
+    res.send({ message: "File deleted successfully" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
 
 module.exports = {
   uploadVideo,
@@ -186,4 +293,10 @@ module.exports = {
   getAllImages,
   getImageById,
   deleteImageById,
+  getAllVideos,
+  getVideoById,
+  deleteVideoById,
+  getAllAudios,
+  getAudioById,
+  deleteAudioById,
 };
