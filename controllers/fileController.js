@@ -24,7 +24,8 @@ const uploadVideo = async (req, res) => {
 
     // Save file information to database
     const fileExtension = path.extname(fileName);
-    const newFileName = `${fileName.toString()}`;
+    //remove spaces from file name
+    const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
     const file = new File({
       name: newFileName,
       type: fileType,
@@ -64,7 +65,8 @@ const uploadAudio = async (req, res) => {
 
     // Save file information to database
     const fileExtension = path.extname(fileName);
-    const newFileName = `${fileName.toString()}`;
+    //remove spaces from file name
+    const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
     const file = new File({
       name: newFileName,
       type: fileType,
@@ -104,7 +106,8 @@ const uploadImage = async (req, res) => {
 
     // Save file information to database
     const fileExtension = path.extname(fileName);
-    const newFileName = `${fileName.toString()}`;
+    //remove spaces from file name
+    const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
     const file = new File({
       name: newFileName,
       type: fileType,
@@ -130,7 +133,9 @@ const getAllImages = async (req, res) => {
     const imagePath = path.join(__dirname, `../uploads/${folderName}/image`);
     const files = await File.find({}).exec();
     const imageUrls = files.map((file) => {
-      const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
+      // D:\Ketan_Project\uploads\ketanfunde\image
+      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
+      const imageUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\image\\${file.name}`;
       return imageUrl;
     });
     res.send({ images: imageUrls });
