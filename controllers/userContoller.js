@@ -1,13 +1,16 @@
 const User = require("../models/userSchema");
-
+const bcrypt = require("bcryptjs");
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user || user.password !== password) {
-      res.status(401).json({ message: "Invalid email or password" });
+    if (!user) {
+      res.status(401).json({ message: "Invalid email}" });
+    } else if (await bcrypt.compare(password, user.password)) {
+      res.status(401).json({ message: "Invalid password" });
     } else {
-      res.status(200).json({ message: "Login successful" });
+      const token = await user.generateAuthToken();
+      res.status(200).json({ user, token });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -21,7 +24,9 @@ exports.register = async (req, res) => {
     if (existingUser) {
       res.status(409).json({ message: "User already exists" });
     } else {
-      const user = new User({ name, email, password });
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      const user = new User({ name, email, password: hashedPassword });
       await user.save();
       res.status(201).json({ message: "User created successfully" });
     }
