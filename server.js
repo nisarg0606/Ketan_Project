@@ -6,6 +6,8 @@ const userRoutes = require("./routes/userRoutes");
 const app = express();
 const port = 3000;
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 // Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/ketan", {
