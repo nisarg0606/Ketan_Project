@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const auth = require("../middleware/auth");
+const fs = require("fs");
+const path = require("path");
 const fileController = require("../controllers/fileController");
 
 const storage = multer.diskStorage({
@@ -23,5 +25,9 @@ const upload = multer({ storage: storage });
 router.post("/video", auth, upload.single("video"), fileController.uploadVideo);
 router.post("/audio", auth, upload.single("audio"), fileController.uploadAudio);
 router.post("/image", auth, upload.single("image"), fileController.uploadImage);
+router.get("/audio", auth, fileController.getAudioFiles);
+router.get("/video", auth, fileController.getVideoFiles);
+router.get("/image", auth, fileController.getImageFiles);
+
 
 module.exports = router;

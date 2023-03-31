@@ -23,14 +23,17 @@ const uploadVideo = async (req, res) => {
     }
 
     // Save file information to database
+    const fileExtension = path.extname(fileName);
+    const newFileName = `${fileName.toString()}`;
     const file = new File({
-      name: fileName,
+      name: newFileName,
       type: fileType,
+      extension: fileExtension,
     });
     await file.save();
 
     // Move file to appropriate folder
-    const filePath = path.join(videoPath, file._id.toString());
+    const filePath = path.join(videoPath, newFileName);
     fs.renameSync(req.file.path, filePath);
 
     res.send({ message: "File uploaded successfully" });
@@ -60,14 +63,17 @@ const uploadAudio = async (req, res) => {
     }
 
     // Save file information to database
+    const fileExtension = path.extname(fileName);
+    const newFileName = `${fileName.toString()}`;
     const file = new File({
-      name: fileName,
+      name: newFileName,
       type: fileType,
+      extension: fileExtension,
     });
     await file.save();
 
     // Move file to appropriate folder
-    const filePath = path.join(audioPath, file._id.toString());
+    const filePath = path.join(audioPath, newFileName);
     fs.renameSync(req.file.path, filePath);
 
     res.send({ message: "File uploaded successfully" });
@@ -97,17 +103,62 @@ const uploadImage = async (req, res) => {
     }
 
     // Save file information to database
+    const fileExtension = path.extname(fileName);
+    const newFileName = `${fileName.toString()}`;
     const file = new File({
-      name: fileName,
+      name: newFileName,
       type: fileType,
+      extension: fileExtension,
     });
     await file.save();
-
     // Move file to appropriate folder
-    const filePath = path.join(imagePath, file._id.toString());
+
+    const filePath = path.join(imagePath, newFileName);
     fs.renameSync(req.file.path, filePath);
 
     res.send({ message: "File uploaded successfully" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getAudioFiles = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const folderPath = path.join(__dirname, `../uploads/${folderName}`);
+    const audioPath = path.join(folderPath, "audio");
+    const files = fs.readdirSync(audioPath);
+    res.send({ files });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getVideoFiles = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const folderPath = path.join(__dirname, `../uploads/${folderName}`);
+    const videoPath = path.join(folderPath, "video");
+    const files = fs.readdirSync(videoPath);
+    res.send({ files });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getImageFiles = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const folderPath = path.join(__dirname, `../uploads/${folderName}`);
+    const imagePath = path.join(folderPath, "image");
+    const files = fs.readdirSync(imagePath);
+    res.send({ files });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });
@@ -118,4 +169,7 @@ module.exports = {
   uploadVideo,
   uploadAudio,
   uploadImage,
+  getAudioFiles,
+  getVideoFiles,
+  getImageFiles,
 };

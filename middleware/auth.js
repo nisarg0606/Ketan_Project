@@ -7,7 +7,6 @@ const auth = async (req, res, next) => {
     const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET);
     const user = await User.findOne({
       _id: decoded._id,
-      "tokens.token": token,
     });
     if (!user) {
       throw new Error();
@@ -16,7 +15,8 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (e) {
-    res.status(401).send({ error: "Please authenticate" });
+    console.log(e);
+    res.status(401).send({ message : "Please authenticate.", error: e.message });
   }
 };
 
