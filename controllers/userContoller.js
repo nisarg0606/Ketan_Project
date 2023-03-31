@@ -16,12 +16,12 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(409).json({ message: "User already exists" });
     } else {
-      const user = new User({ email, password });
+      const user = new User({ name, email, password });
       await user.save();
       res.status(201).json({ message: "User created successfully" });
     }
