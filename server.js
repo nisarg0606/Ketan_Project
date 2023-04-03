@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -9,6 +10,7 @@ const port = 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cors());
 // Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/ketan", {
