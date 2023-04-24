@@ -133,13 +133,16 @@ const getAllImages = async (req, res) => {
   try {
     const user = req.user;
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
-    const imagePath = path.join(__dirname, `../uploads/${folderName}/image`);
     //get all images from database
     const files = await File.find({ typeFile: "image" }).exec();
     const imageUrls = files.map((file) => {
       // D:\Ketan_Project\uploads\ketanfunde\image
       // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-      const imageUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\image\\${file.name}`;
+      // const imageUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\image\\${file.name}`;
+      //get id of image
+      const imageUrl = {};
+      imageUrl.id = file._id;
+      imageUrl.name = file.name;
       return imageUrl;
     });
     res.send({ images: imageUrls });
@@ -153,10 +156,9 @@ const getImageById = async (req, res) => {
   try {
     const user = req.user;
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
-    const imagePath = path.join(__dirname, `../uploads/${folderName}/image`);
     const file = await File.findById(req.params.id).exec();
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-    res.send({ image: imageUrl });
+    const imageUrl = `./uploads/${folderName}/image/${file.name}`;
+    res.sendFile(imageUrl, { root: "./" });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });
@@ -191,7 +193,10 @@ const getAllVideos = async (req, res) => {
     const videoUrls = files.map((file) => {
       // D:\Ketan_Project\uploads\ketanfunde\image
       // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-      const videoUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\video\\${file.name}`;
+      // const videoUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\video\\${file.name}`;
+      const videoUrl = {};
+      videoUrl.id = file._id;
+      videoUrl.name = file.name;
       return videoUrl;
     });
     res.send({ videos: videoUrls });
@@ -207,8 +212,8 @@ const getVideoById = async (req, res) => {
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
     const videoPath = path.join(__dirname, `../uploads/${folderName}/video`);
     const file = await File.findById(req.params.id).exec();
-    const videoUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/video/${file.name}`;
-    res.send({ video: videoUrl });
+    const videoUrl = `./uploads/${folderName}/video/${file.name}`;
+    res.sendFile(videoUrl, { root: "./" });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });

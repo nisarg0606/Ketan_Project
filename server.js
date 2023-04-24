@@ -11,6 +11,7 @@ const port = 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+app.use(express.static("uploads"));
 // Connect to MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/ketan", {
