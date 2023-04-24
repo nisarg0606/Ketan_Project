@@ -59,7 +59,7 @@ const uploadAudio = async (req, res) => {
       fs.mkdirSync(folderPath);
     }
 
-    // Create folder for audio if it doesn't exist
+    // Create folder for audios if it doesn't exist
     const audioPath = path.join(folderPath, "audio");
     if (!fs.existsSync(audioPath)) {
       fs.mkdirSync(audioPath);
@@ -132,12 +132,97 @@ const uploadImage = async (req, res) => {
   }
 };
 
+const uploadFile = async (req, res) => {
+  try {
+    const user = req.user;
+    const fileName = req.file.originalname;
+    const fileType = req.file.mimetype;
+
+    // Create folder for user if it doesn't exist
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const folderPath = path.join(__dirname, `../uploads/${folderName}`);
+    if (!fs.existsSync(folderPath)) {
+      fs.mkdirSync(folderPath);
+    }
+
+    // Create folder for files if it doesn't exist
+    const filePath = path.join(folderPath, "file");
+    if (!fs.existsSync(filePath)) {
+      fs.mkdirSync(filePath);
+    }
+
+    // Save file information to database
+    const fileExtension = path.extname(fileName);
+    //remove spaces from file name
+    const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
+    const file = new File({
+      name: newFileName,
+      type: fileType,
+      extension: fileExtension,
+      typeFile: "file",
+      user: user._id,
+    });
+    await file.save();
+
+    // Move file to appropriate folder
+    const fileDestination = path.join(filePath, newFileName);
+    fs.renameSync(req.file.path, fileDestination);
+
+    res.send({ message: "File uploaded successfully", file: file });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getAllFiles = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    //get all files from database
+    const files = await File.find({
+      typeFile: "file",
+      user: req.user._id,
+    }).exec();
+    const fileUrls = files.map((file) => {
+      // D:\Ketan_Project\uploads\ketanfunde\file
+      // const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/file/${file.name}`;
+      // const fileUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\file\\${file.name}`;
+      //get id of file
+      const fileUrl = {};
+      fileUrl.id = file._id;
+      fileUrl.name = file.name;
+      return fileUrl;
+    });
+    res.send({ files: fileUrls });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
+const getFileById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const file = await File.findById(req.params.id).exec();
+    const fileUrl = `./uploads/${folderName}/file/${file.name}`;
+    res.sendFile(fileUrl, { root: "./" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
 const getAllImages = async (req, res) => {
   try {
     const user = req.user;
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
     //get all images from database
-    const files = await File.find({ typeFile: "image", user: req.user._id }).exec();
+    const files = await File.find({
+      typeFile: "image",
+      user: req.user._id,
+    }).exec();
     const imageUrls = files.map((file) => {
       // D:\Ketan_Project\uploads\ketanfunde\image
       // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
@@ -257,7 +342,10 @@ const getAllAudios = async (req, res) => {
   try {
     const user = req.user;
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
-    const files = await File.find({ typeFile: "audio", user: req.user._id }).exec();
+    const files = await File.find({
+      typeFile: "audio",
+      user: req.user._id,
+    }).exec();
     const audioUrls = files.map((file) => {
       // D:\Ketan_Project\uploads\ketanfunde\image
       // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
@@ -296,7 +384,8 @@ const deleteAudioById = async (req, res) => {
       res.status(404).send({ error: "File not found" });
       return;
     }
-    fs.unlinkSync(path.join(imagePath, file.name));
+    const audioPath = path.join(__dirname, `../uploads/${folderName}/audio`);
+    fs.unlinkSync(path.join(audioPath, file.name));
     await file.deleteOne();
     res.send({ message: "File deleted successfully" });
   } catch (e) {
@@ -309,6 +398,9 @@ module.exports = {
   uploadVideo,
   uploadAudio,
   uploadImage,
+  uploadFile,
+  getAllFiles,
+  getFileById,
   getAllImages,
   getImageById,
   deleteImageById,
