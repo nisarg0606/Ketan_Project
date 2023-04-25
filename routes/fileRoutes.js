@@ -22,17 +22,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// localhost:5000/api/files and then the routes below
 router.post("/video", auth, upload.single("video"), fileController.uploadVideo);
 router.post("/audio", auth, upload.single("audio"), fileController.uploadAudio);
 router.post("/image", auth, upload.single("image"), fileController.uploadImage);
+router.post("/file", auth, upload.single("file"), fileController.uploadFile);
+router.get("/getFiles", auth, fileController.getAllFiles);
+router.get("/getFile/:id", auth, fileController.getFileById);
 router.get("/getImages", auth, fileController.getAllImages);
-router.get("getImage/:id", auth, fileController.getImageById);
+router.get("/getImage/:id", auth, fileController.getImageById);
 router.delete("/deleteImage/:id", auth, fileController.deleteImageById);
 router.get("/getVideos", auth, fileController.getAllVideos);
-router.get("getVideo/:id", auth, fileController.getVideoById);
+router.get("/getVideo/:id", auth, fileController.getVideoById);
 router.delete("/deleteVideo/:id", auth, fileController.deleteVideoById);
 router.get("/getAudios", auth, fileController.getAllAudios);
-router.get("getAudio/:id", auth, fileController.getAudioById);
+router.get("/getAudio/:id", auth, fileController.getAudioById);
 router.delete("/deleteAudio/:id", auth, fileController.deleteAudioById);
 
 module.exports = router;
