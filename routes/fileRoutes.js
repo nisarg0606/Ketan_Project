@@ -38,5 +38,6 @@ router.delete("/deleteVideo/:id", auth, fileController.deleteVideoById);
 router.get("/getAudios", auth, fileController.getAllAudios);
 router.get("/getAudio/:id", auth, fileController.getAudioById);
 router.delete("/deleteAudio/:id", auth, fileController.deleteAudioById);
+router.delete("/deleteFile/:id", auth, fileController.deleteFileById);
 
 module.exports = router;

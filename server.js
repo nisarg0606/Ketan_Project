@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.static("uploads"));
 // Connect to MongoDB
 mongoose
-  .connect("mongodb://127.0.0.1:27017/ketan", {
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })

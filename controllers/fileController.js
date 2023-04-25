@@ -220,10 +220,6 @@ const getAllFiles = async (req, res) => {
       user: req.user._id,
     }).exec();
     const fileUrls = files.map((file) => {
-      // D:\Ketan_Project\uploads\ketanfunde\file
-      // const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/file/${file.name}`;
-      // const fileUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\file\\${file.name}`;
-      //get id of file
       const fileUrl = {};
       fileUrl.id = file._id;
       fileUrl.name = file.name;
@@ -249,6 +245,21 @@ const getFileById = async (req, res) => {
   }
 };
 
+const deleteFileById = async (req, res) => {
+  try {
+    const user = req.user;
+    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+    const file = await File.findById(req.params.id).exec();
+    const fileUrl = `./uploads/${folderName}/file/${file.name}`;
+    fs.unlinkSync(fileUrl);
+    await File.findByIdAndDelete(req.params.id).exec();
+    res.send({ message: "File deleted successfully" });
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Internal server error" });
+  }
+};
+
 const getAllImages = async (req, res) => {
   try {
     const user = req.user;
@@ -259,10 +270,6 @@ const getAllImages = async (req, res) => {
       user: req.user._id,
     }).exec();
     const imageUrls = files.map((file) => {
-      // D:\Ketan_Project\uploads\ketanfunde\image
-      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-      // const imageUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\image\\${file.name}`;
-      //get id of image
       const imageUrl = {};
       imageUrl.id = file._id;
       imageUrl.name = file.name;
@@ -316,9 +323,6 @@ const getAllVideos = async (req, res) => {
     const userId = req.user._id;
     const files = await File.find({ typeFile: "video", user: userId }).exec();
     const videoUrls = files.map((file) => {
-      // D:\Ketan_Project\uploads\ketanfunde\image
-      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-      // const videoUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\video\\${file.name}`;
       const videoUrl = {};
       videoUrl.id = file._id;
       videoUrl.name = file.name;
@@ -382,9 +386,6 @@ const getAllAudios = async (req, res) => {
       user: req.user._id,
     }).exec();
     const audioUrls = files.map((file) => {
-      // D:\Ketan_Project\uploads\ketanfunde\image
-      // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/image/${file.name}`;
-      // const audioUrl = process.env.BASE_URL_UPLOADS + `\\uploads\\${folderName}\\audio\\${file.name}`;
       const audioUrl = {};
       audioUrl.id = file._id;
       audioUrl.name = file.name;
@@ -434,6 +435,7 @@ module.exports = {
   uploadAudio,
   uploadImage,
   uploadFile,
+  deleteFileById,
   getAllFiles,
   getFileById,
   getAllImages,
