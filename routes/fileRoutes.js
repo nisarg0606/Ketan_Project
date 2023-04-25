@@ -22,6 +22,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// localhost:5000/api/files and then the routes below
 router.post("/video", auth, upload.single("video"), fileController.uploadVideo);
 router.post("/audio", auth, upload.single("audio"), fileController.uploadAudio);
 router.post("/image", auth, upload.single("image"), fileController.uploadImage);
