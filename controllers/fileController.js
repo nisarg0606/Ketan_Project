@@ -5,53 +5,77 @@ const File = require("../models/fileSchema");
 
 const uploadVideo = async (req, res) => {
   try {
+    if (req.file == null) {
+      return res.status(500).send({ message: "No file selected" });
+    }
     const user = req.user;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype;
+    console.log(fileType);
+    if (fileType != "video/mp4") {
+      fs.unlinkSync(req.file.path);
+      req.file = null;
+      return res
+        .status(500)
+        .send({ message: "You can only upload mp4 files", file: fileName });
+    } else {
+      // Create folder for user if it doesn't exist
+      const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
+      const folderPath = path.join(__dirname, `../uploads/${folderName}`);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+      }
 
-    // Create folder for user if it doesn't exist
-    const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
-    const folderPath = path.join(__dirname, `../uploads/${folderName}`);
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath);
+      // Create folder for videos if it doesn't exist
+      const videoPath = path.join(folderPath, "video");
+      if (!fs.existsSync(videoPath)) {
+        fs.mkdirSync(videoPath);
+      }
+
+      // Save file information to database
+      const fileExtension = path.extname(fileName);
+      //remove spaces from file name
+      const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
+      const file = new File({
+        name: newFileName,
+        type: fileType,
+        extension: fileExtension,
+        typeFile: "video",
+        user: user._id,
+      });
+      await file.save();
+
+      // Move file to appropriate folder
+      const filePath = path.join(videoPath, newFileName);
+      fs.renameSync(req.file.path, filePath);
+
+      return res
+        .status(200)
+        .send({ message: "File uploaded successfully", file: file });
     }
-
-    // Create folder for videos if it doesn't exist
-    const videoPath = path.join(folderPath, "video");
-    if (!fs.existsSync(videoPath)) {
-      fs.mkdirSync(videoPath);
-    }
-
-    // Save file information to database
-    const fileExtension = path.extname(fileName);
-    //remove spaces from file name
-    const newFileName = `${fileName.toString()}`.replace(/\s+/g, "");
-    const file = new File({
-      name: newFileName,
-      type: fileType,
-      extension: fileExtension,
-      typeFile: "video",
-      user: user._id,
-    });
-    await file.save();
-
-    // Move file to appropriate folder
-    const filePath = path.join(videoPath, newFileName);
-    fs.renameSync(req.file.path, filePath);
-
-    res.send({ message: "File uploaded successfully", file: file });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });
+  } finally {
+    req.file = null;
   }
 };
 
 const uploadAudio = async (req, res) => {
   try {
+    if (req.file == null) {
+      return res.status(500).send({ message: "No file selected" });
+    }
     const user = req.user;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype;
-
+    if (fileType != "audio/mpeg") {
+      fs.unlinkSync(req.file.path);
+      req.file = null;
+      return res
+        .status(500)
+        .send({ message: "You can only upload mp3 files", file: fileName });
+    }
     // Create folder for user if it doesn't exist
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
     const folderPath = path.join(__dirname, `../uploads/${folderName}`);
@@ -82,7 +106,7 @@ const uploadAudio = async (req, res) => {
     const filePath = path.join(audioPath, newFileName);
     fs.renameSync(req.file.path, filePath);
 
-    res.send({ message: "File uploaded successfully", file: file });
+    return res.send({ message: "File uploaded successfully", file: file });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });
@@ -91,9 +115,20 @@ const uploadAudio = async (req, res) => {
 
 const uploadImage = async (req, res) => {
   try {
+    if (req.file == null) {
+      return res.status(500).send({ message: "No file selected" });
+    }
     const user = req.user;
     const fileName = req.file.originalname;
     const fileType = req.file.mimetype;
+    if (fileType != "image/jpeg" && fileType != "image/png") {
+      fs.unlinkSync(req.file.path);
+      req.file = null;
+      return res.status(500).send({
+        message: "You can only upload jpeg and png files",
+        file: fileName,
+      });
+    }
 
     // Create folder for user if it doesn't exist
     const folderName = user.name.trim().replace(/\s+/g, "").toLowerCase();
@@ -125,10 +160,10 @@ const uploadImage = async (req, res) => {
     const filePath = path.join(imagePath, newFileName);
     fs.renameSync(req.file.path, filePath);
 
-    res.send({ message: "File uploaded successfully", file: file });
+    return res.send({ message: "File uploaded successfully", file: file });
   } catch (e) {
     console.log(e);
-    res.status(500).send({ error: "Internal server error" });
+    return res.status(500).send({ error: "Internal server error" });
   }
 };
 
@@ -331,7 +366,7 @@ const deleteVideoById = async (req, res) => {
     }
     fs.unlinkSync(path.join(videoPath, file.name));
     await file.deleteOne();
-    res.send({ message: "File deleted successfully" });
+    res.status(200).send({ message: "File deleted successfully" });
   } catch (e) {
     console.log(e);
     res.status(500).send({ error: "Internal server error" });
