@@ -1,4 +1,5 @@
 const User = require("../models/userSchema");
+const File = require("../models/fileSchema");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
@@ -92,6 +93,29 @@ exports.deleteUser = async (req, res) => {
       res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.dashboard = async (req, res) => {
+  try {
+    console.log(req.user);
+    // count for videos, images and files of the user
+    const videoCount = await File.countDocuments({
+      user: req.user._id,
+      typeFile: "video",
+    });
+    const imageCount = await File.countDocuments({
+      user: req.user._id,
+      typeFile: "image",
+    });
+    const fileCount = await File.countDocuments({
+      user: req.user._id,
+      typeFile: "file",
+    });
+    res.status(200).json({ videoCount, imageCount, fileCount });
+  } catch (error) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
 };
