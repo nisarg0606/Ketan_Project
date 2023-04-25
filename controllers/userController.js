@@ -117,11 +117,15 @@ exports.dashboard = async (req, res) => {
       user: req.user._id,
       typeFile: "image",
     });
+    const audioCount = await File.countDocuments({
+      user: req.user._id,
+      typeFile: "audio",
+    });
     const fileCount = await File.countDocuments({
       user: req.user._id,
       typeFile: "file",
     });
-    res.status(200).json({ videoCount, imageCount, fileCount });
+    res.status(200).json({ videoCount, imageCount, audioCount, fileCount });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
