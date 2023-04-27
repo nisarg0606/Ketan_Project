@@ -78,12 +78,11 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email} = req.body;
     const user = await User.findById(req.params.id);
     if (user) {
       user.name = name;
       user.email = email;
-      user.password = password;
       await user.save();
       res.status(200).json({ message: "User updated successfully" });
     } else {
