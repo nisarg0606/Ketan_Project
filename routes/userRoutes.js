@@ -12,7 +12,7 @@ router.delete("/:id", auth, userController.deleteUser);
 router.get("/user/dashboard", auth, userController.dashboard);
 router.put("/password/change-password", auth, userController.changePassword);
 router.post("/password/forgot-password", userController.forgotPassword);
-router.put("/password/reset-password/", userController.resetPassword);
+router.put("/password/reset-password/:email/:otp", userController.resetPassword);
 router.post("/logout", auth, userController.logout);
 
 module.exports = router;

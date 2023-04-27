@@ -78,7 +78,7 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   try {
-    const { name, email} = req.body;
+    const { name, email } = req.body;
     const user = await User.findById(req.params.id);
     if (user) {
       user.name = name;
@@ -159,7 +159,7 @@ exports.forgotPassword = async (req, res) => {
   try {
     const email = req.body.email;
     console.log(email + "email");
-    if(!email){
+    if (!email) {
       res.status(404).json({ message: "Email not found" });
     }
     const response = await sendEmailForForgotPassword(email);
@@ -177,7 +177,9 @@ exports.forgotPassword = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const { newPassword } = req.body;
+    const email = req.params.email;
+    const otp = req.params.otp;
     const user = await User.findOne({ email });
     console.log(user);
     if (!user) {
