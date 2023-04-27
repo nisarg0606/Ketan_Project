@@ -16,7 +16,6 @@ const transporter = nodemailer.createTransport({
 const sendEmailForForgotPassword = async (email) => {
   let otp;
   try {
-    console.log(email);
     let user = await User.findOne({ email });
     if (!user) {
       return "User not found";

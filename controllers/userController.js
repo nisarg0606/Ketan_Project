@@ -158,7 +158,6 @@ exports.forgotPassword = async (req, res) => {
   // call sendEmailForForgotPassword function
   try {
     const email = req.body.email;
-    console.log(email + "email");
     if (!email) {
       res.status(404).json({ message: "Email not found" });
     }
@@ -181,7 +180,6 @@ exports.resetPassword = async (req, res) => {
     const email = req.params.email;
     const otp = req.params.otp;
     const user = await User.findOne({ email });
-    console.log(user);
     if (!user) {
       res.status(404).json({ message: "User not found" });
     } else {
@@ -189,7 +187,7 @@ exports.resetPassword = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
         user.password = hashedPassword;
-        user.otp = null;
+        user.otp = undefined;
         await user.save();
         res.status(200).json({ message: "Password reset successfully" });
       } else {
